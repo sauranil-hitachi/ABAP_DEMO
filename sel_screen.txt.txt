@@ -1,0 +1,117 @@
+*&---------------------------------------------------------------------*
+*& Report ZSDEY_FIRST_PROG
+*&---------------------------------------------------------------------*
+*& Author : Sauranil Dey
+*& Date : 18/07/2019
+*& Purpose : To show selection screen
+*&---------------------------------------------------------------------*
+REPORT ZSDEY_SEL_SCR.
+TABLES : VBAK,VBAP.
+
+TYPES : BEGIN OF TY_MARA, "MOLD
+        VBELN TYPE VBAK-VBELN,
+        ERDAT TYPE VBAK-ERDAT,
+        MATNR TYPE VBAP-MATNR,
+        POSNR TYPE VBAP-POSNR,
+        END   OF TY_MARA.
+
+DATA : IT_MARA TYPE TABLE OF TY_MARA, "ICEBOX
+       WA_FCAT TYPE SLIS_FIELDCAT_ALV,
+       IT_FCAT TYPE SLIS_T_FIELDCAT_ALV.
+
+"Selection Screen
+SELECTION-SCREEN BEGIN OF BLOCK B1.
+"PARAMETERS : S_VBELN TYPE VBAP-VBELN. "Document Number
+ SELECT-OPTIONS : S_VBELN FOR VBAK-VBELN. "Document Number
+SELECTION-SCREEN END OF BLOCK B1.
+
+"DATA FETCH
+SELECT a~vbeln a~erdat
+       b~matnr b~posnr
+       from vbak as a inner join vbap as b
+       on b~vbeln = a~vbeln
+       into table it_mara
+       where a~vbeln in s_vbeln.
+
+*WRITE : 'Hello World'. "Commented by Sauranil
+
+"Display function
+
+"Work Area
+CLEAR WA_FCAT.
+WA_FCAT-FIELDNAME = 'VBELN'.
+WA_FCAT-SELTEXT_L = 'Doc Number'.
+WA_FCAT-TABNAME = 'IT_MARA'.
+APPEND WA_FCAT TO IT_FCAT.
+
+CLEAR WA_FCAT.
+WA_FCAT-FIELDNAME = 'ERDAT'.
+WA_FCAT-SELTEXT_L = 'Date'.
+WA_FCAT-TABNAME = 'IT_MARA'.
+APPEND WA_FCAT TO IT_FCAT.
+
+CLEAR WA_FCAT.
+WA_FCAT-FIELDNAME = 'MATNR'.
+WA_FCAT-SELTEXT_L = 'Material Number'.
+WA_FCAT-TABNAME = 'IT_MARA'.
+APPEND WA_FCAT TO IT_FCAT.
+
+CLEAR WA_FCAT.
+WA_FCAT-FIELDNAME = 'POSNR'.
+WA_FCAT-SELTEXT_L = 'Position Number'.
+WA_FCAT-TABNAME = 'IT_MARA'.
+APPEND WA_FCAT TO IT_FCAT.
+
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+ EXPORTING
+*   I_INTERFACE_CHECK                 = ' '
+*   I_BYPASSING_BUFFER                = ' '
+*   I_BUFFER_ACTIVE                   = ' '
+*   I_CALLBACK_PROGRAM                = ' '
+*   I_CALLBACK_PF_STATUS_SET          = ' '
+*   I_CALLBACK_USER_COMMAND           = ' '
+*   I_CALLBACK_TOP_OF_PAGE            = ' '
+*   I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*   I_CALLBACK_HTML_END_OF_LIST       = ' '
+   I_STRUCTURE_NAME                  = 'TY_MARA'
+*   I_BACKGROUND_ID                   = ' '
+*   I_GRID_TITLE                      =
+*   I_GRID_SETTINGS                   =
+*   IS_LAYOUT                         =
+   IT_FIELDCAT                       = IT_FCAT
+*   IT_EXCLUDING                      =
+*   IT_SPECIAL_GROUPS                 =
+*   IT_SORT                           =
+*   IT_FILTER                         =
+*   IS_SEL_HIDE                       =
+*   I_DEFAULT                         = 'X'
+*   I_SAVE                            = ' '
+*   IS_VARIANT                        =
+*   IT_EVENTS                         =
+*   IT_EVENT_EXIT                     =
+*   IS_PRINT                          =
+*   IS_REPREP_ID                      =
+*   I_SCREEN_START_COLUMN             = 0
+*   I_SCREEN_START_LINE               = 0
+*   I_SCREEN_END_COLUMN               = 0
+*   I_SCREEN_END_LINE                 = 0
+*   I_HTML_HEIGHT_TOP                 = 0
+*   I_HTML_HEIGHT_END                 = 0
+*   IT_ALV_GRAPHICS                   =
+*   IT_HYPERLINK                      =
+*   IT_ADD_FIELDCAT                   =
+*   IT_EXCEPT_QINFO                   =
+*   IR_SALV_FULLSCREEN_ADAPTER        =
+*   O_PREVIOUS_SRAL_HANDLER           =
+* IMPORTING
+*   E_EXIT_CAUSED_BY_CALLER           =
+*   ES_EXIT_CAUSED_BY_USER            =
+  TABLES
+    T_OUTTAB                          = IT_MARA.
+* EXCEPTIONS
+*   PROGRAM_ERROR                     = 1
+*   OTHERS                            = 2
+          .
+IF SY-SUBRC <> 0.
+* Implement suitable error handling here
+ENDIF.
